@@ -309,16 +309,37 @@ def main():
     with open(data_yaml_path, 'r') as f:
         data_config = yaml.safe_load(f)
     
-    # Fix paths to be relative to data.yaml location
-    base_dir = data_yaml_path.parent
-    data_config['train'] = str(base_dir / 'train' / 'images')
-    data_config['val'] = str(base_dir / 'valid' / 'images')
-    data_config['test'] = str(base_dir / 'test' / 'images')
+    # Fix paths to be absolute paths (YOLO needs absolute paths to avoid duplication)
+    base_dir = data_yaml_path.parent.resolve()  # Use resolve() to get absolute path
+    # Use absolute paths and normalize
+    train_path = str(base_dir / 'train' / 'images').replace('\\', '/')
+    val_path = str(base_dir / 'valid' / 'images').replace('\\', '/')
+    test_path = str(base_dir / 'test' / 'images').replace('\\', '/')
+    
+    # Also update the 'path' field in data_config to point to base_dir
+    data_config['path'] = str(base_dir).replace('\\', '/')
+    
+    data_config['train'] = train_path
+    data_config['val'] = val_path
+    data_config['test'] = test_path
+    
+    # Verify paths exist
+    if not Path(train_path).exists():
+        print(f"⚠️  Warning: Train path does not exist: {train_path}")
+    if not Path(val_path).exists():
+        print(f"⚠️  Warning: Validation path does not exist: {val_path}")
+    if not Path(test_path).exists():
+        print(f"⚠️  Warning: Test path does not exist: {test_path}")
     
     # Save updated config
     updated_yaml = data_yaml_path.parent / 'data_updated.yaml'
     with open(updated_yaml, 'w') as f:
         yaml.dump(data_config, f)
+    
+    print(f"✅ Updated paths:")
+    print(f"   Train: {train_path}")
+    print(f"   Val: {val_path}")
+    print(f"   Test: {test_path}")
     
     print(f"✅ Updated data config saved to: {updated_yaml}")
     
