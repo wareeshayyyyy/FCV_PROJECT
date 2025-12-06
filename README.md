@@ -44,7 +44,7 @@ See `PROJECT_REQUIREMENTS_ANALYSIS.md` for complete requirements compliance.
 
 ## Documentation
 
-
+- `PROJECT_COMPLETE_GUIDE.md` - Complete project guide with all modules, code files, and line counts
 - `PROJECT_REQUIREMENTS_ANALYSIS.md` - Requirements compliance analysis
 
 ## Models
