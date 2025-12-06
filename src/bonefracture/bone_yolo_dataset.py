@@ -54,8 +54,24 @@ class BoneFractureDatasetYOLO(Dataset):
         self.classification_mode = classification_mode
         self.include_bbox = include_bbox
 
+        # Normalize path separators (handle both Windows and Linux paths)
+        root_dir = str(root_dir).replace('\\', '/')
+        
         self.images_dir = os.path.join(root_dir, split, 'images')
         self.labels_dir = os.path.join(root_dir, split, 'labels')
+        
+        # Normalize paths
+        self.images_dir = os.path.normpath(self.images_dir).replace('\\', '/')
+        self.labels_dir = os.path.normpath(self.labels_dir).replace('\\', '/')
+
+        if not os.path.exists(self.images_dir):
+            raise FileNotFoundError(
+                f"Images directory not found: {self.images_dir}\n"
+                f"Please check:\n"
+                f"  1. Dataset is uploaded correctly\n"
+                f"  2. Dataset structure: {root_dir}/{split}/images/\n"
+                f"  3. Path is correct (use forward slashes in Colab)"
+            )
 
         self.image_files = sorted([f for f in os.listdir(self.images_dir)
                                    if f.lower().endswith(('.jpg', '.png', '.jpeg'))])
