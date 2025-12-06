@@ -55,12 +55,14 @@ class BoneFractureDatasetYOLO(Dataset):
         self.include_bbox = include_bbox
 
         # Normalize path separators (handle both Windows and Linux paths)
+        # Convert to string and replace all backslashes with forward slashes
         root_dir = str(root_dir).replace('\\', '/')
         
-        self.images_dir = os.path.join(root_dir, split, 'images')
-        self.labels_dir = os.path.join(root_dir, split, 'labels')
+        # Use forward slashes for path joining (works on both Windows and Linux)
+        self.images_dir = f"{root_dir}/{split}/images"
+        self.labels_dir = f"{root_dir}/{split}/labels"
         
-        # Normalize paths
+        # Normalize paths (remove any double slashes, etc.)
         self.images_dir = os.path.normpath(self.images_dir).replace('\\', '/')
         self.labels_dir = os.path.normpath(self.labels_dir).replace('\\', '/')
 
