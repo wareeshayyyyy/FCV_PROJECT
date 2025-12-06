@@ -543,7 +543,17 @@ def main():
     print("\nLoading dataset...")
     # Normalize dataset path (convert Windows backslashes to forward slashes for Linux/Colab)
     dataset_root_normalized = str(config.DATASET_ROOT).replace('\\', '/')
+    # Remove double slashes
+    dataset_root_normalized = dataset_root_normalized.replace('//', '/')
+    
+    # If it's a relative path, make it absolute based on current working directory
+    if not os.path.isabs(dataset_root_normalized):
+        current_dir = os.getcwd()
+        dataset_root_normalized = os.path.join(current_dir, dataset_root_normalized).replace('\\', '/')
+    
     print(f"Dataset path (normalized): {dataset_root_normalized}")
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Path exists: {os.path.exists(dataset_root_normalized)}")
     
     train_loader, val_loader, test_loader, train_ds, val_ds, test_ds = create_dataloaders(
         root_dir=dataset_root_normalized,

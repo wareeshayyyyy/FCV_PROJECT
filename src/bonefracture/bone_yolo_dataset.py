@@ -57,23 +57,38 @@ class BoneFractureDatasetYOLO(Dataset):
         # Normalize path separators (handle both Windows and Linux paths)
         # Convert to string and replace all backslashes with forward slashes
         root_dir = str(root_dir).replace('\\', '/')
+        # Remove any double slashes
+        root_dir = root_dir.replace('//', '/')
         
         # Use forward slashes for path joining (works on both Windows and Linux)
         self.images_dir = f"{root_dir}/{split}/images"
         self.labels_dir = f"{root_dir}/{split}/labels"
         
-        # Normalize paths (remove any double slashes, etc.)
-        self.images_dir = os.path.normpath(self.images_dir).replace('\\', '/')
-        self.labels_dir = os.path.normpath(self.labels_dir).replace('\\', '/')
+        # Normalize paths (remove any double slashes, etc.) and ensure forward slashes
+        self.images_dir = self.images_dir.replace('//', '/').replace('\\', '/')
+        self.labels_dir = self.labels_dir.replace('//', '/').replace('\\', '/')
+        
+        # Store normalized root_dir
+        self.root_dir = root_dir
 
+        # Debug: Print the path being used
+        print(f"DEBUG: Checking images directory: {self.images_dir}")
+        
         if not os.path.exists(self.images_dir):
-            raise FileNotFoundError(
-                f"Images directory not found: {self.images_dir}\n"
-                f"Please check:\n"
-                f"  1. Dataset is uploaded correctly\n"
-                f"  2. Dataset structure: {root_dir}/{split}/images/\n"
-                f"  3. Path is correct (use forward slashes in Colab)"
-            )
+            # Try alternative path formats
+            alt_paths = [
+                self.images_dir,
+                self.images_dir.replace('/', '\\'),
+                os.path.normpath(self.images_dir),
+            ]
+            error_msg = f"Images directory not found: {self.images_dir}\n"
+            error_msg += f"Tried paths: {alt_paths}\n"
+            error_msg += f"Please check:\n"
+            error_msg += f"  1. Dataset is uploaded correctly\n"
+            error_msg += f"  2. Dataset structure: {root_dir}/{split}/images/\n"
+            error_msg += f"  3. Current working directory: {os.getcwd()}\n"
+            error_msg += f"  4. Path is correct (use forward slashes in Colab)"
+            raise FileNotFoundError(error_msg)
 
         self.image_files = sorted([f for f in os.listdir(self.images_dir)
                                    if f.lower().endswith(('.jpg', '.png', '.jpeg'))])
