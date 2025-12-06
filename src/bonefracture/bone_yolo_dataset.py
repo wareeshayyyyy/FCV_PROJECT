@@ -183,6 +183,9 @@ class BoneFractureDatasetYOLO(Dataset):
 
 
 def create_dataloaders(root_dir, batch_size=32, num_workers=4, classification_mode=True):
+    # Normalize path (convert Windows backslashes to forward slashes)
+    root_dir = str(root_dir).replace('\\', '/')
+    
     train_transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.RandomHorizontalFlip(p=0.5),
