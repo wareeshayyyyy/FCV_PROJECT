@@ -44,7 +44,7 @@ See `PROJECT_REQUIREMENTS_ANALYSIS.md` for complete requirements compliance.
 
 ## Documentation
 
-- `COLAB_VSCODE_GUIDE_ROMAN_URDU.md` - Complete Colab setup guide (Roman Urdu)
+
 - `PROJECT_REQUIREMENTS_ANALYSIS.md` - Requirements compliance analysis
 
 ## Models
