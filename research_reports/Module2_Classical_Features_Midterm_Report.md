@@ -3,7 +3,7 @@
 ## Midterm Report (8-10 pages)
 
 ### EXECUTIVE SUMMARY
-This comprehensive midterm report presents the classical machine learning approach to bone fracture detection. We extracted 118 features from 500 X-ray images and achieved 65.6% accuracy with SVM (RBF).
+This comprehensive midterm report presents the classical machine learning approach to bone fracture detection. We extracted 118 features from 500 X-ray images and achieved 63.0% accuracy with Random Forest.
 
 ### 1. FEATURE EXTRACTION METHODOLOGY
 
@@ -43,20 +43,20 @@ This comprehensive midterm report presents the classical machine learning approa
 #### 2.1 Model Performance Summary
 | Model | Cross-Validation Accuracy | Standard Deviation | Training Method |
 |-------|---------------------------|-------------------|-----------------|
-| Random Forest | 0.650 | ±0.061 | 5-Fold CV |
-| SVM (Linear) | 0.626 | ±0.044 | 5-Fold CV |
-| SVM (RBF) | 0.656 | ±0.055 | 5-Fold CV |
+| Random Forest | 0.630 | ±0.018 | 5-Fold CV |
+| SVM (Linear) | 0.586 | ±0.040 | 5-Fold CV |
+| SVM (RBF) | 0.602 | ±0.032 | 5-Fold CV |
 
 #### 2.2 Best Performing Model Analysis
-**SVM (RBF)** achieved the highest performance:
-- **Accuracy**: 0.656 ± 0.055
+**Random Forest** achieved the highest performance:
+- **Accuracy**: 0.630 ± 0.018
 - **Reliability**: Consistent performance across cross-validation folds
 - **Clinical Applicability**: Suitable for automated screening
 
 ### 3. ABLATION STUDY: WHICH FEATURES WORK BEST?
 
 #### 3.1 Feature Group Performance Analysis
-| Feature Group | Number of Features | Accuracy | Standard Deviation |\n|---------------|-------------------|----------|-------------------|\n| Keypoints (FAST) | 4 | 0.576 | ±0.051 |\n| SIFT Features | 12 | 0.562 | ±0.040 |\n| SURF Features | 3 | 0.510 | ±0.000 |\n| HOG Features | 7 | 0.598 | ±0.064 |\n| BoVW Features | 51 | 0.578 | ±0.054 |\n| LBP Texture | 4 | 0.560 | ±0.030 |\n| GLCM Texture | 5 | 0.594 | ±0.036 |\n| Hu Moments | 7 | 0.532 | ±0.050 |\n| Edge Features | 8 | 0.572 | ±0.047 |\n| Intensity | 5 | 0.578 | ±0.070 |\n| Morphological | 3 | 0.586 | ±0.039 |\n| Geometric | 9 | 0.530 | ±0.055 |\n
+| Feature Group | Number of Features | Accuracy | Standard Deviation |\n|---------------|-------------------|----------|-------------------|\n| Keypoints (FAST) | 4 | 0.576 | ±0.029 |\n| SIFT Features | 12 | 0.530 | ±0.054 |\n| SURF Features | 3 | 0.506 | ±0.005 |\n| HOG Features | 7 | 0.620 | ±0.023 |\n| BoVW Features | 51 | 0.542 | ±0.024 |\n| LBP Texture | 4 | 0.544 | ±0.027 |\n| GLCM Texture | 5 | 0.560 | ±0.028 |\n| Hu Moments | 7 | 0.514 | ±0.049 |\n| Edge Features | 8 | 0.560 | ±0.032 |\n| Intensity | 5 | 0.540 | ±0.028 |\n| Morphological | 3 | 0.554 | ±0.033 |\n| Geometric | 9 | 0.612 | ±0.095 |\n
 
 #### 3.2 Key Findings from Ablation Study
 1. **Most Important Feature Group**: HOG Features
@@ -74,7 +74,7 @@ This comprehensive midterm report presents the classical machine learning approa
 - **Keypoint Features**: Identify anatomical landmarks
 
 #### 4.2 Diagnostic Support Capabilities
-- Automated fracture screening with 65.6% accuracy
+- Automated fracture screening with 63.0% accuracy
 - Quantitative biomarkers for fracture assessment
 - Reproducible and objective analysis
 - Support for clinical decision-making
@@ -92,7 +92,7 @@ This comprehensive midterm report presents the classical machine learning approa
 4. **Generalization**: May need retraining for different imaging protocols
 
 ### 7. CONCLUSIONS AND NEXT STEPS
-Classical machine learning achieves 65.6% accuracy for bone fracture detection using engineered features. The approach provides interpretable results suitable for clinical validation.
+Classical machine learning achieves 63.0% accuracy for bone fracture detection using engineered features. The approach provides interpretable results suitable for clinical validation.
 
 **Recommendations for Module 3:**
 1. Compare with deep learning approaches
@@ -101,8 +101,8 @@ Classical machine learning achieves 65.6% accuracy for bone fracture detection u
 4. Validate on larger clinical datasets
 
 ---
-**Report Generated**: 2025-12-06 00:37:43
+**Report Generated**: 2025-12-12 17:12:50
 **Dataset**: 500 processed images
 **Features**: 118 extracted features
-**Best Model**: SVM (RBF) (65.6% accuracy)
+**Best Model**: Random Forest (63.0% accuracy)
         

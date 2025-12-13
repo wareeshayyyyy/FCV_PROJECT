@@ -24,6 +24,7 @@ from bonefracture.bone_yolo_dataset import create_dataloaders, calculate_class_w
 
 class TrainingConfig:
     """Optimized training configuration"""
+    # Updated to support both local and Colab paths
     DATASET_ROOT = r'data\archive\bone fracture detection.v4-v4.yolov8'
     CHECKPOINT_DIR = './checkpoints'
     OUTPUT_DIR = './training_results'
@@ -40,6 +41,48 @@ class TrainingConfig:
     # Learning rates (OPTIMIZED FOR FINE-TUNING)
     LEARNING_RATE_PHASE1 = 1e-3  # Higher LR for classifier
     LEARNING_RATE_PHASE2 = 1e-4  # Lower LR for fine-tuning
+    LEARNING_RATE_BACKBONE = 1e-5  # Even lower for backbone
+    WEIGHT_DECAY = 1e-4
+    
+    # Hyperparameters
+    DROPOUT_RATE = 0.5
+    MOMENTUM = 0.9
+    BETA1 = 0.9
+    BETA2 = 0.999
+    
+    # Device
+    DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    NUM_WORKERS = 0 if not torch.cuda.is_available() else 4
+    PIN_MEMORY = torch.cuda.is_available()
+    
+    # Early stopping
+    PATIENCE = 5
+    MIN_DELTA = 0.001
+    
+    @staticmethod
+    def get_dataset_path():
+        """Get normalized dataset path for both Windows and Colab"""
+        base_path = TrainingConfig.DATASET_ROOT.replace('\\', '/')
+        
+        # Check local path first
+        if os.path.exists(base_path):
+            return base_path
+        
+        # Check Colab path
+        colab_path = '/content/bone_fracture_detection/data/archive/bone fracture detection.v4-v4.yolov8'
+        if os.path.exists(colab_path):
+            return colab_path
+        
+        # Check alternate dataset
+        alt_path = 'data/archive/BoneFractureYolo8'
+        if os.path.exists(alt_path):
+            return alt_path
+        
+        return base_path  # Return original if none exist
+    
+    def __init__(self):
+        os.makedirs(self.CHECKPOINT_DIR, exist_ok=True)
+        os.makedirs(self.OUTPUT_DIR, exist_ok=True)
     LEARNING_RATE_BACKBONE = 1e-5  # Even lower for backbone
     WEIGHT_DECAY = 1e-4
     
@@ -360,17 +403,27 @@ def train_model_complete(model, train_loader, val_loader, test_loader, config, p
     # Calculate detailed metrics
     from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
     
-    precision = precision_score(test_labels, test_preds, average='weighted')
-    recall = recall_score(test_labels, test_preds, average='weighted')
-    f1 = f1_score(test_labels, test_preds, average='weighted')
-    cm = confusion_matrix(test_labels, test_preds)
+    try:
+        precision = precision_score(test_labels, test_preds, average='weighted', zero_division=0)
+        recall = recall_score(test_labels, test_preds, average='weighted', zero_division=0)
+        f1 = f1_score(test_labels, test_preds, average='weighted', zero_division=0)
+        cm = confusion_matrix(test_labels, test_preds)
+    except Exception as e:
+        print(f"Warning: Could not calculate detailed metrics: {str(e)}")
+        precision = 0.0
+        recall = 0.0
+        f1 = 0.0
+        cm = None
     
     print(f"\nDetailed Metrics:")
     print(f"  Precision: {precision:.4f}")
     print(f"  Recall: {recall:.4f}")
     print(f"  F1-Score: {f1:.4f}")
     print(f"\nConfusion Matrix:")
-    print(cm)
+    if cm is not None:
+        print(cm)
+    else:
+        print("  (Could not compute confusion matrix)")
     
     return {
         'model': model,
@@ -541,19 +594,18 @@ def main():
     
     # Load dataset
     print("\nLoading dataset...")
-    # Normalize dataset path (convert Windows backslashes to forward slashes for Linux/Colab)
-    dataset_root_normalized = str(config.DATASET_ROOT).replace('\\', '/')
-    # Remove double slashes
-    dataset_root_normalized = dataset_root_normalized.replace('//', '/')
+    # Get normalized dataset path that works on both Windows and Colab
+    dataset_root_normalized = TrainingConfig.get_dataset_path()
+    dataset_root_normalized = str(dataset_root_normalized).replace('\\', '/')
     
-    # If it's a relative path, make it absolute based on current working directory
-    if not os.path.isabs(dataset_root_normalized):
-        current_dir = os.getcwd()
-        dataset_root_normalized = os.path.join(current_dir, dataset_root_normalized).replace('\\', '/')
-    
-    print(f"Dataset path (normalized): {dataset_root_normalized}")
+    print(f"Dataset path: {dataset_root_normalized}")
     print(f"Current working directory: {os.getcwd()}")
     print(f"Path exists: {os.path.exists(dataset_root_normalized)}")
+    
+    if not os.path.exists(dataset_root_normalized):
+        print(f"\n⚠️  Warning: Dataset not found at {dataset_root_normalized}")
+        print("Please ensure the dataset is uploaded or the path is correct.")
+        return
     
     train_loader, val_loader, test_loader, train_ds, val_ds, test_ds = create_dataloaders(
         root_dir=dataset_root_normalized,
@@ -640,5 +692,16 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except FileNotFoundError as e:
+        print(f"\n❌ File Error: {str(e)}")
+        print("Please check that all required files and datasets are in place.")
+    except ImportError as e:
+        print(f"\n❌ Import Error: {str(e)}")
+        print("Please install required packages: pip install torch torchvision numpy pandas matplotlib sklearn tqdm")
+    except Exception as e:
+        print(f"\n❌ Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
 
